@@ -1,8 +1,10 @@
-use crate::kinematics::Velocity;
+use crate::bot::Bot;
 use crate::player::Player;
+use avian2d::collision::collider::Collider;
+use avian2d::dynamics::rigid_body::RigidBody;
 use bevy::prelude::*;
 
-pub const PAD_DISPLACEMENT: f32 = 200.0;
+pub const PAD_DISPLACEMENT: f32 = 250.0;
 
 pub struct PadPlugin;
 impl Plugin for PadPlugin {
@@ -33,9 +35,11 @@ pub fn spawn_pads(
     // Spawn rivals pad
     commands.spawn((
         pad_sprite.clone(),
+        Bot,
         Pad,
-        Transform::from_translation(Vec3::new(PAD_DISPLACEMENT, 0.0, 0.0)),
-        Velocity { x: 0.0, y: 0.0 },
+        RigidBody::Kinematic,
+        Transform::from_xyz(PAD_DISPLACEMENT, 0.0, 0.0),
+        Collider::rectangle(6.0, 32.0),
     ));
 
     // Spawn Players pad
@@ -43,7 +47,8 @@ pub fn spawn_pads(
         pad_sprite,
         Player,
         Pad,
-        Transform::from_translation(Vec3::new(-PAD_DISPLACEMENT, 0.0, 0.0)),
-        Velocity { x: 0.0, y: 0.0 },
+        RigidBody::Kinematic,
+        Transform::from_xyz(-PAD_DISPLACEMENT, 0.0, 0.0),
+        Collider::rectangle(6.0, 32.0),
     ));
 }

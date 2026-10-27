@@ -1,45 +1,35 @@
 // player.rs
-use crate::kinematics::*;
+use avian2d::prelude::*;
 use bevy::prelude::*;
 
-//
+// Atlas constants
+const MOVE_SPEED: f32 = 140.0; // pixels per second
+
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, move_pad);
+        app.add_systems(Update, move_player);
     }
 }
 
-// Atlas constants
 #[derive(Component)]
 pub struct Player; // Moved from main.rs to here
 
 // Control de players pad
-pub fn move_pad(
+pub fn move_player(
+    player: Single<&mut LinearVelocity, With<Player>>,
     input: Res<ButtonInput<KeyCode>>,
-    player_kinematic: Single<(&mut Transform, &mut Velocity), With<Player>>,
 ) {
-    let (_transform, mut vel) = player_kinematic.into_inner();
-
-    let mut dir = Vec2::ZERO;
+    let mut y_dir = 0.0;
 
     if input.pressed(KeyCode::ArrowUp) {
-        dir.y += 1.0;
+        y_dir += 1.0;
     }
 
     if input.pressed(KeyCode::ArrowDown) {
-        dir.y -= 1.0;
+        y_dir -= 1.0;
     }
 
-    if dir != Vec2::ZERO {
-        let speed = 100.0;
-
-        let delta = speed * dir.normalize();
-
-        vel.x = delta.x;
-        vel.y = delta.y;
-    } else {
-        vel.x = 0.0;
-        vel.y = 0.0;
-    }
+    let mut player_vel = player.into_inner();
+    player_vel.y = MOVE_SPEED * y_dir;
 }

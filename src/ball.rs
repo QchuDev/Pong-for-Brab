@@ -1,15 +1,20 @@
-use crate::kinematics::*;
+use avian2d::prelude::*;
 use bevy::prelude::*;
+
+const BALL_SIZE: f32 = 6.0;
+const BALL_SPEED: f32 = 500.0;
+const BALL_MAX_SPEED_X: f32 = 240.0;
 
 pub struct BallPlugin;
 impl Plugin for BallPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_ball);
+        app.add_systems(Startup, (spawn_ball, kick_ball).chain())
+            .add_systems(Update, check_ball);
     }
 }
 
 #[derive(Component)]
-struct Ball;
+pub struct Ball;
 
 pub fn spawn_ball(
     mut commands: Commands,
@@ -31,7 +36,26 @@ pub fn spawn_ball(
     commands.spawn((
         ball_sprite,
         Ball,
-        Transform::from_translation(Vec3::ZERO),
-        Velocity { x: 20.0, y: 0.0 },
+        RigidBody::Dynamic,
+        Restitution::new(1.0).with_combine_rule(CoefficientCombine::Max),
+        Collider::circle(BALL_SIZE),
     ));
+}
+
+fn kick_ball(ball: Single<&mut LinearVelocity, With<Ball>>) {
+    let mut ball_vel = ball.into_inner();
+    let rand_dir = rand::random::<Vec2>().normalize();
+    ball_vel.x = rand_dir.x * BALL_SPEED;
+    ball_vel.y = rand_dir.y * BALL_SPEED;
+}
+
+fn check_ball(ball: Single<&mut LinearVelocity, With<Ball>>) {
+    // CONSTRAINT BALL SPEED
+    let mut ball_vel = ball.into_inner();
+
+    if ball_vel.x != BALL_MAX_SPEED_X {
+        return;
+    }
+
+    ball_vel.x = ball_vel.x.signum() * BALL_MAX_SPEED_X;
 }
