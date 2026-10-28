@@ -3,12 +3,12 @@ use avian2d::prelude::*;
 use bevy::prelude::*;
 
 // Atlas constants
-const MOVE_SPEED: f32 = 140.0; // pixels per second
+const MOVE_SPEED: f32 = 200.0; // pixels per second
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, move_player);
+        app.add_systems(FixedUpdate, move_player);
     }
 }
 

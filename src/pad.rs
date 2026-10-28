@@ -1,7 +1,8 @@
 use crate::bot::Bot;
 use crate::player::Player;
+use crate::points::Team;
 use avian2d::collision::collider::Collider;
-use avian2d::dynamics::rigid_body::RigidBody;
+use avian2d::dynamics::rigid_body::{Dominance, LockedAxes, Restitution, RigidBody};
 use bevy::prelude::*;
 
 pub const PAD_DISPLACEMENT: f32 = 250.0;
@@ -21,7 +22,7 @@ pub fn spawn_pads(
     asset_server: Res<AssetServer>,
     mut atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let texture = asset_server.load("pong-spritesheet.png");
+    let texture = asset_server.load("sprites/pong-spritesheet.png");
     let layout = atlas_layouts.add(TextureAtlasLayout::from_grid(
         UVec2::splat(32),
         1,
@@ -37,7 +38,11 @@ pub fn spawn_pads(
         pad_sprite.clone(),
         Bot,
         Pad,
-        RigidBody::Kinematic,
+        Team::RIGHT,
+        RigidBody::Dynamic,
+        Dominance(1),
+        LockedAxes::ROTATION_LOCKED.lock_translation_x(),
+        Restitution::default(),
         Transform::from_xyz(PAD_DISPLACEMENT, 0.0, 0.0),
         Collider::rectangle(6.0, 32.0),
     ));
@@ -47,7 +52,11 @@ pub fn spawn_pads(
         pad_sprite,
         Player,
         Pad,
-        RigidBody::Kinematic,
+        Team::LEFT,
+        RigidBody::Dynamic,
+        Dominance(1),
+        LockedAxes::ROTATION_LOCKED.lock_translation_x(),
+        Restitution::default(),
         Transform::from_xyz(-PAD_DISPLACEMENT, 0.0, 0.0),
         Collider::rectangle(6.0, 32.0),
     ));

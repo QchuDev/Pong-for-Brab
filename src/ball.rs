@@ -2,14 +2,14 @@ use avian2d::prelude::*;
 use bevy::prelude::*;
 
 const BALL_SIZE: f32 = 6.0;
-const BALL_SPEED: f32 = 500.0;
-const BALL_MAX_SPEED_X: f32 = 240.0;
+const BALL_SPEED: f32 = 300.0;
+const BALL_MIN_SPEED_X: f32 = 300.0;
 
 pub struct BallPlugin;
 impl Plugin for BallPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, (spawn_ball, kick_ball).chain())
-            .add_systems(Update, check_ball);
+            .add_systems(FixedUpdate, check_ball);
     }
 }
 
@@ -21,7 +21,7 @@ pub fn spawn_ball(
     asset_server: Res<AssetServer>,
     mut atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let texture: Handle<Image> = asset_server.load("pong-spritesheet.png");
+    let texture: Handle<Image> = asset_server.load("sprites/pong-spritesheet.png");
     let layout = atlas_layouts.add(TextureAtlasLayout::from_grid(
         UVec2::splat(32),
         1,
@@ -37,6 +37,7 @@ pub fn spawn_ball(
         ball_sprite,
         Ball,
         RigidBody::Dynamic,
+        LockedAxes::ROTATION_LOCKED,
         Restitution::new(1.0).with_combine_rule(CoefficientCombine::Max),
         Collider::circle(BALL_SIZE),
     ));
@@ -53,9 +54,9 @@ fn check_ball(ball: Single<&mut LinearVelocity, With<Ball>>) {
     // CONSTRAINT BALL SPEED
     let mut ball_vel = ball.into_inner();
 
-    if ball_vel.x != BALL_MAX_SPEED_X {
+    if ball_vel.x.abs() > BALL_MIN_SPEED_X {
         return;
     }
 
-    ball_vel.x = ball_vel.x.signum() * BALL_MAX_SPEED_X;
+    ball_vel.x = ball_vel.x.signum() * BALL_MIN_SPEED_X;
 }

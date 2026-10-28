@@ -15,6 +15,9 @@ use bot::*;
 mod ball;
 use ball::*;
 
+mod points;
+use points::*;
+
 // We will make a pong for my neural network managmente library - Brab
 //
 // By using Bevy we have a game engine for the pong.
@@ -33,12 +36,12 @@ use ball::*;
 // - Assets
 //
 // Just that, simple, it should take a week only
-const SCREEN_WIDTH: u32 = 600;
+const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 
 fn main() {
     App::new()
-        .insert_resource(Time::<Fixed>::from_hz(120.0))
+        .insert_resource(Time::<Fixed>::from_hz(60.0))
         .insert_resource(ClearColor(Color::srgba(0.2, 0.2, 0.2, 1.0)))
         .add_plugins(PongPlugin)
         .run();
@@ -73,6 +76,9 @@ impl Plugin for PongPlugin {
                 PhysicsDebugPlugin,
             ))
             .insert_resource(Gravity::ZERO)
+            //
+            // PHYSICS GIZMOS
+            //
             .insert_gizmo_config(
                 PhysicsGizmos {
                     aabb_color: Some(Color::WHITE),
@@ -83,7 +89,8 @@ impl Plugin for PongPlugin {
             .add_plugins(BallPlugin)
             .add_plugins(PadPlugin)
             .add_plugins(PlayerPlugin)
-            .add_plugins(BotPlugin);
+            .add_plugins(BotPlugin)
+            .add_plugins(PointsPlugin);
     }
 }
 
@@ -99,15 +106,5 @@ fn setup_scene(mut commands: Commands) {
         RigidBody::Static,
         Transform::from_xyz(0.0, -(SCREEN_HEIGHT as f32 * 0.5), 0.0),
         Collider::rectangle(SCREEN_WIDTH as f32, 10.0),
-    ));
-    commands.spawn((
-        RigidBody::Static,
-        Transform::from_xyz(SCREEN_WIDTH as f32 * 0.5, 0.0, 0.0),
-        Collider::rectangle(10.0, SCREEN_HEIGHT as f32),
-    ));
-    commands.spawn((
-        RigidBody::Static,
-        Transform::from_xyz(-(SCREEN_WIDTH as f32 * 0.5), 0.0, 0.0),
-        Collider::rectangle(10.0, SCREEN_HEIGHT as f32),
     ));
 }

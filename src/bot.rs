@@ -2,7 +2,7 @@ use avian2d::dynamics::rigid_body::LinearVelocity;
 use bevy::prelude::*;
 
 use crate::ball::Ball;
-const BOT_MAX_SPEED: f32 = 140.0;
+const BOT_MAX_SPEED: f32 = 200.0;
 
 pub struct BotPlugin;
 impl Plugin for BotPlugin {
