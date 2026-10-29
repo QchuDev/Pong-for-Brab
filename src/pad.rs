@@ -5,7 +5,7 @@ use avian2d::collision::collider::Collider;
 use avian2d::dynamics::rigid_body::{Dominance, LockedAxes, Restitution, RigidBody};
 use bevy::prelude::*;
 
-pub const PAD_DISPLACEMENT: f32 = 250.0;
+pub const PAD_DISPLACEMENT: f32 = 300.0;
 
 pub struct PadPlugin;
 impl Plugin for PadPlugin {

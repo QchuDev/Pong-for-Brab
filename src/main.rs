@@ -73,19 +73,19 @@ impl Plugin for PongPlugin {
             .add_plugins((
                 PhysicsPlugins::default(),
                 // Enables debug rendering
-                PhysicsDebugPlugin,
+                // PhysicsDebugPlugin,
             ))
             .insert_resource(Gravity::ZERO)
             //
             // PHYSICS GIZMOS
             //
-            .insert_gizmo_config(
-                PhysicsGizmos {
-                    aabb_color: Some(Color::WHITE),
-                    ..default()
-                },
-                GizmoConfig::default(),
-            )
+            //.insert_gizmo_config(
+            //    PhysicsGizmos {
+            //        aabb_color: Some(Color::WHITE),
+            //        ..default()
+            //    },
+            //    GizmoConfig::default(),
+            //)
             .add_plugins(BallPlugin)
             .add_plugins(PadPlugin)
             .add_plugins(PlayerPlugin)
@@ -101,10 +101,12 @@ fn setup_scene(mut commands: Commands) {
         RigidBody::Static,
         Transform::from_xyz(0.0, SCREEN_HEIGHT as f32 * 0.5, 0.0),
         Collider::rectangle(SCREEN_WIDTH as f32, 10.0),
+        Friction::ZERO,
     ));
     commands.spawn((
         RigidBody::Static,
         Transform::from_xyz(0.0, -(SCREEN_HEIGHT as f32 * 0.5), 0.0),
         Collider::rectangle(SCREEN_WIDTH as f32, 10.0),
+        Friction::ZERO,
     ));
 }

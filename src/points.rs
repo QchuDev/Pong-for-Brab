@@ -1,10 +1,14 @@
-use crate::{SCREEN_HEIGHT, SCREEN_WIDTH, ball::Ball};
+use crate::{
+    SCREEN_HEIGHT, SCREEN_WIDTH,
+    ball::{Ball, BallBundle, spawn_ball},
+    pad::Pad,
+};
 use avian2d::{
     collision::{
         collider::Collider,
         collision_events::{CollisionEventsEnabled, CollisionStart},
     },
-    dynamics::rigid_body::RigidBody,
+    dynamics::rigid_body::{Friction, RigidBody},
 };
 use bevy::prelude::*;
 use std::collections::HashMap;
@@ -57,6 +61,7 @@ fn setup_goals(mut commands: Commands) {
         CollisionEventsEnabled,
         Transform::from_xyz(SCREEN_WIDTH as f32 * 0.5, 0.0, 0.0),
         Collider::rectangle(10.0, SCREEN_HEIGHT as f32),
+        Friction::ZERO,
     ));
 
     commands.spawn((
@@ -66,14 +71,20 @@ fn setup_goals(mut commands: Commands) {
         CollisionEventsEnabled,
         Transform::from_xyz(-(SCREEN_WIDTH as f32 * 0.5), 0.0, 0.0),
         Collider::rectangle(10.0, SCREEN_HEIGHT as f32),
+        Friction::ZERO,
     ));
 }
+#[derive(Event)]
+pub struct GoalEvent; // goal by
 
 fn on_goal(
     ev: On<CollisionStart>,
+    mut commands: Commands,
     goals: Query<&Team, With<Goal>>,
     balls: Query<(), With<Ball>>,
     mut points: ResMut<Points>,
+    asset_server: Res<AssetServer>,
+    atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     // Check for collision at goals and sum a point
     let (a, b) = (ev.collider1, ev.collider2);
@@ -81,8 +92,10 @@ fn on_goal(
 
     if let (Ok(team), true) = (goals.get(goal), balls.contains(ball)) {
         points.add(*team);
+        commands.entity(ball).despawn();
+        commands.spawn(BallBundle::new(asset_server, atlas_layouts));
+        commands.trigger(GoalEvent);
     }
-    println!("{} | {}", points.get(Team::LEFT), points.get(Team::RIGHT));
 }
 
 #[derive(Component)]
@@ -90,7 +103,7 @@ struct ScoreText(Team);
 
 const SCORE_DISPLACEMENT: f32 = 150.0;
 const FONT_SIZE: f32 = 24.0;
-
+const FONT_COLOR: Color = Color::srgba(0.92, 0.48, 0.15, 0.5);
 fn setup_points(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Create a TextFont
     // Make the scoreboards for each team
@@ -101,7 +114,7 @@ fn setup_points(mut commands: Commands, asset_server: Res<AssetServer>) {
             font: default(),
             ..default()
         },
-        TextColor(Color::WHITE),
+        TextColor(FONT_COLOR),
         Transform::from_xyz(-SCORE_DISPLACEMENT, SCORE_DISPLACEMENT * 0.5, 0.0),
         ScoreText(Team::LEFT),
     ));
@@ -112,7 +125,7 @@ fn setup_points(mut commands: Commands, asset_server: Res<AssetServer>) {
             font: default(),
             ..default()
         },
-        TextColor(Color::WHITE),
+        TextColor(FONT_COLOR),
         Transform::from_xyz(SCORE_DISPLACEMENT, SCORE_DISPLACEMENT * 0.5, 0.0),
         ScoreText(Team::RIGHT),
     ));
