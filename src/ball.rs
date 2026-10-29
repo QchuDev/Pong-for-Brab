@@ -1,5 +1,6 @@
 use avian2d::prelude::*;
 use bevy::prelude::*;
+use rand::RngExt;
 
 use crate::points::GoalEvent;
 
@@ -88,7 +89,9 @@ fn kick_ball(
     mut ball_state: ResMut<BallState>,
 ) {
     let mut ball_vel = ball.into_inner();
-    let rand_dir = rand::random::<Vec2>().normalize();
+    let mut rng = rand::rng();
+    let rand_dir = Vec2::new(rng.random_range(-5.0..5.0), rng.random_range(-1.0..1.0)).normalize();
+
     ball_vel.x = rand_dir.x * BALL_MIN_SPEED_X;
     ball_vel.y = rand_dir.y * BALL_MIN_SPEED_X;
     *ball_state = BallState::MOVING;
