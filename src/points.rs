@@ -1,7 +1,6 @@
 use crate::{
     SCREEN_HEIGHT, SCREEN_WIDTH,
-    ball::{Ball, BallBundle, spawn_ball},
-    pad::Pad,
+    ball::{Ball, BallBundle},
 };
 use avian2d::{
     collision::{
@@ -104,7 +103,7 @@ struct ScoreText(Team);
 const SCORE_DISPLACEMENT: f32 = 150.0;
 const FONT_SIZE: f32 = 24.0;
 const FONT_COLOR: Color = Color::srgba(0.92, 0.48, 0.15, 0.5);
-fn setup_points(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_points(mut commands: Commands) {
     // Create a TextFont
     // Make the scoreboards for each team
     commands.spawn((
