@@ -2,7 +2,11 @@ use avian2d::prelude::*;
 use bevy::prelude::*;
 use rand::RngExt;
 
-use crate::points::GoalEvent;
+use crate::points::Goal;
+use crate::{
+    audio::{BALL_HIT_MP3, GOAl_MP3},
+    points::GoalEvent,
+};
 
 const BALL_SIZE: f32 = 6.0;
 const BALL_MIN_SPEED_X: f32 = 220.0;
@@ -19,7 +23,8 @@ impl Plugin for BallPlugin {
             .add_systems(FixedUpdate, (limit_balls_speed, update_kick_timer))
             .add_observer(kick_ball)
             .add_observer(on_spawn_ball)
-            .add_observer(reset_on_goal);
+            .add_observer(reset_on_goal)
+            .add_observer(on_collision_sound);
     }
 }
 
@@ -112,12 +117,9 @@ fn limit_balls_speed(ball: Single<&mut LinearVelocity, With<Ball>>, ball_state: 
     ball_vel.x = ball_vel.x.signum() * BALL_MIN_SPEED_X;
 }
 
-fn on_spawn_ball(event: On<Insert<Ball>>, mut ball_state: ResMut<BallState>) {
+fn on_spawn_ball(_event: On<Insert<Ball>>, mut ball_state: ResMut<BallState>) {
     // reset idle timer
     *ball_state = BallState::IDLE;
-
-    let new_ball = event.entity;
-    println!("{}", new_ball);
 }
 
 fn update_kick_timer(
@@ -143,4 +145,36 @@ fn reset_on_goal(
 ) {
     kick_cooldown.timer.reset();
     *ball_state = BallState::IDLE;
+}
+
+// At collision play sound
+fn on_collision_sound(
+    event: On<CollisionStart>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    ball: Single<(Entity, &LinearVelocity), With<Ball>>,
+    goal_query: Query<Entity, With<Goal>>,
+) {
+    let (ball_entity, ball_vel) = ball.into_inner();
+    if ball_entity != event.collider1 && ball_entity != event.collider2 {
+        println!("Not ball");
+        return;
+    }
+    let ball_speed = ball_vel.length();
+    let ball_speed_gain = (ball_speed / (100.0 + ball_speed)) + 0.5;
+
+    for goal_e in &goal_query {
+        if goal_e == event.collider1 || goal_e == event.collider2 {
+            commands.spawn((
+                AudioPlayer::new(asset_server.load(GOAl_MP3)),
+                PlaybackSettings::DESPAWN.with_speed(ball_speed_gain),
+            ));
+            return;
+        }
+    }
+
+    commands.spawn((
+        AudioPlayer::new(asset_server.load(BALL_HIT_MP3)),
+        PlaybackSettings::DESPAWN.with_speed(ball_speed_gain),
+    ));
 }

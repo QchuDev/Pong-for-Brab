@@ -3,6 +3,7 @@ use bevy::{
     prelude::*,
     window::{PresentMode, WindowResolution},
 };
+
 mod pad;
 use pad::*;
 
@@ -17,6 +18,9 @@ use ball::*;
 
 mod points;
 use points::*;
+
+mod audio;
+use audio::*;
 
 // We will make a pong for my neural network managmente library - Brab
 //
@@ -40,8 +44,8 @@ const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 
 fn main() {
-    App::new()
-        .insert_resource(Time::<Fixed>::from_hz(60.0))
+    App::default()
+        .insert_resource(Time::<Fixed>::from_hz(120.0))
         .insert_resource(ClearColor(Color::srgba(0.2, 0.2, 0.2, 1.0)))
         .add_plugins(PongPlugin)
         .run();
@@ -102,11 +106,13 @@ fn setup_scene(mut commands: Commands) {
         Transform::from_xyz(0.0, SCREEN_HEIGHT as f32 * 0.5, 0.0),
         Collider::rectangle(SCREEN_WIDTH as f32, 10.0),
         Friction::ZERO,
+        CollisionEventsEnabled,
     ));
     commands.spawn((
         RigidBody::Static,
         Transform::from_xyz(0.0, -(SCREEN_HEIGHT as f32 * 0.5), 0.0),
         Collider::rectangle(SCREEN_WIDTH as f32, 10.0),
         Friction::ZERO,
+        CollisionEventsEnabled,
     ));
 }

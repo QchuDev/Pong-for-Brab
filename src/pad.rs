@@ -2,6 +2,7 @@ use crate::bot::Bot;
 use crate::player::Player;
 use crate::points::Team;
 use avian2d::collision::collider::Collider;
+use avian2d::collision::collision_events::CollisionEventsEnabled;
 use avian2d::dynamics::rigid_body::{Dominance, LockedAxes, Restitution, RigidBody};
 use bevy::prelude::*;
 
@@ -41,6 +42,7 @@ pub fn spawn_pads(
         Team::RIGHT,
         RigidBody::Dynamic,
         Dominance(1),
+        CollisionEventsEnabled,
         LockedAxes::ROTATION_LOCKED.lock_translation_x(),
         Restitution::default(),
         Transform::from_xyz(PAD_DISPLACEMENT, 0.0, 0.0),
@@ -55,6 +57,7 @@ pub fn spawn_pads(
         Team::LEFT,
         RigidBody::Dynamic,
         Dominance(1),
+        CollisionEventsEnabled,
         LockedAxes::ROTATION_LOCKED.lock_translation_x(),
         Restitution::default(),
         Transform::from_xyz(-PAD_DISPLACEMENT, 0.0, 0.0),

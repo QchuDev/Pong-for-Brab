@@ -28,7 +28,7 @@ impl Plugin for PointsPlugin {
 }
 
 #[derive(Component)]
-struct Goal;
+pub struct Goal;
 //
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Team {

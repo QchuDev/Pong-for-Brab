@@ -22,11 +22,11 @@ pub fn move_player(
 ) {
     let mut y_dir = 0.0;
 
-    if input.pressed(KeyCode::ArrowUp) {
+    if input.pressed(KeyCode::KeyK) {
         y_dir += 1.0;
     }
 
-    if input.pressed(KeyCode::ArrowDown) {
+    if input.pressed(KeyCode::KeyJ) {
         y_dir -= 1.0;
     }
 
